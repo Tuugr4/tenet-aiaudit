@@ -1,0 +1,2384 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Tenet Audit — EU AI Act Audit Log API",
+    "description": "Tamper-evident AI call logging, risk classification (Article 6 / Annex III), incident reporting (Article 73) and auditor-ready evidence packs (Article 12).",
+    "version": "0.1.0"
+  },
+  "components": {
+    "securitySchemes": {
+      "apiKey": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "Tenant key (ta_live_…) or admin key (ta_admin_…)"
+      }
+    },
+    "schemas": {}
+  },
+  "paths": {
+    "/healthz": {
+      "get": {
+        "tags": [
+          "system"
+        ],
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/readyz": {
+      "get": {
+        "tags": [
+          "system"
+        ],
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/v1/admin/tenants": {
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "name",
+                  "slug"
+                ],
+                "properties": {
+                  "name": {
+                    "minLength": 1,
+                    "maxLength": 200,
+                    "type": "string"
+                  },
+                  "slug": {
+                    "pattern": "^[a-z0-9][a-z0-9-]{1,62}[a-z0-9]$",
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "tenant",
+                    "apiKey",
+                    "genesisHash"
+                  ],
+                  "properties": {
+                    "tenant": {
+                      "type": "object",
+                      "required": [
+                        "id",
+                        "name",
+                        "slug",
+                        "status",
+                        "createdAt"
+                      ],
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "slug": {
+                          "type": "string"
+                        },
+                        "status": {
+                          "type": "string"
+                        },
+                        "createdAt": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "apiKey": {
+                      "type": "object",
+                      "required": [
+                        "id",
+                        "secret",
+                        "keyPrefix"
+                      ],
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "secret": {
+                          "description": "Shown exactly once — store it securely.",
+                          "type": "string"
+                        },
+                        "keyPrefix": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "genesisHash": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "id",
+                      "name",
+                      "slug",
+                      "status",
+                      "createdAt"
+                    ],
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "slug": {
+                        "type": "string"
+                      },
+                      "status": {
+                        "type": "string"
+                      },
+                      "createdAt": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/admin/tenants/{tenantId}/api-keys": {
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "label": {
+                    "maxLength": 200,
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "in": "path",
+            "name": "tenantId",
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "id",
+                    "secret",
+                    "keyPrefix"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "secret": {
+                      "type": "string"
+                    },
+                    "keyPrefix": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/admin/api-keys/{keyId}": {
+      "delete": {
+        "tags": [
+          "admin"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "in": "path",
+            "name": "keyId",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/v1/log-ai-call": {
+      "post": {
+        "tags": [
+          "ai-calls"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "occurred_at",
+                  "model_id",
+                  "human_oversight"
+                ],
+                "properties": {
+                  "occurred_at": {
+                    "format": "date-time",
+                    "type": "string"
+                  },
+                  "model_id": {
+                    "minLength": 1,
+                    "maxLength": 200,
+                    "type": "string"
+                  },
+                  "model_version": {
+                    "maxLength": 200,
+                    "type": "string"
+                  },
+                  "prompt_version": {
+                    "maxLength": 200,
+                    "type": "string"
+                  },
+                  "system_purpose": {
+                    "maxLength": 500,
+                    "type": "string"
+                  },
+                  "data_sources": {
+                    "maxItems": 100,
+                    "type": "array",
+                    "items": {
+                      "maxLength": 500,
+                      "type": "string"
+                    }
+                  },
+                  "user_consent": {
+                    "type": "boolean"
+                  },
+                  "consent_ref": {
+                    "maxLength": 500,
+                    "type": "string"
+                  },
+                  "human_oversight": {
+                    "description": "Article 14 — was a human in a position to oversee/intervene?",
+                    "type": "boolean"
+                  },
+                  "oversight_actor": {
+                    "maxLength": 200,
+                    "type": "string"
+                  },
+                  "decision_output": {},
+                  "input_summary": {
+                    "description": "Prompt metadata — do NOT send raw personal data"
+                  },
+                  "risk_tier": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "enum": [
+                          "prohibited"
+                        ]
+                      },
+                      {
+                        "type": "string",
+                        "enum": [
+                          "high"
+                        ]
+                      },
+                      {
+                        "type": "string",
+                        "enum": [
+                          "limited"
+                        ]
+                      },
+                      {
+                        "type": "string",
+                        "enum": [
+                          "minimal"
+                        ]
+                      }
+                    ]
+                  },
+                  "end_user_ref": {
+                    "maxLength": 200,
+                    "type": "string"
+                  },
+                  "error": {},
+                  "appeal": {},
+                  "metadata": {
+                    "type": "object",
+                    "additionalProperties": {}
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "id",
+                    "seq",
+                    "record_hash",
+                    "prev_hash",
+                    "recorded_at"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "seq": {
+                      "type": "number"
+                    },
+                    "record_hash": {
+                      "type": "string"
+                    },
+                    "prev_hash": {
+                      "type": "string"
+                    },
+                    "recorded_at": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/log-ai-call/batch": {
+      "post": {
+        "tags": [
+          "ai-calls"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "records"
+                ],
+                "properties": {
+                  "records": {
+                    "minItems": 1,
+                    "maxItems": 500,
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "occurred_at",
+                        "model_id",
+                        "human_oversight"
+                      ],
+                      "properties": {
+                        "occurred_at": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "model_id": {
+                          "minLength": 1,
+                          "maxLength": 200,
+                          "type": "string"
+                        },
+                        "model_version": {
+                          "maxLength": 200,
+                          "type": "string"
+                        },
+                        "prompt_version": {
+                          "maxLength": 200,
+                          "type": "string"
+                        },
+                        "system_purpose": {
+                          "maxLength": 500,
+                          "type": "string"
+                        },
+                        "data_sources": {
+                          "maxItems": 100,
+                          "type": "array",
+                          "items": {
+                            "maxLength": 500,
+                            "type": "string"
+                          }
+                        },
+                        "user_consent": {
+                          "type": "boolean"
+                        },
+                        "consent_ref": {
+                          "maxLength": 500,
+                          "type": "string"
+                        },
+                        "human_oversight": {
+                          "description": "Article 14 — was a human in a position to oversee/intervene?",
+                          "type": "boolean"
+                        },
+                        "oversight_actor": {
+                          "maxLength": 200,
+                          "type": "string"
+                        },
+                        "decision_output": {},
+                        "input_summary": {
+                          "description": "Prompt metadata — do NOT send raw personal data"
+                        },
+                        "risk_tier": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "enum": [
+                                "prohibited"
+                              ]
+                            },
+                            {
+                              "type": "string",
+                              "enum": [
+                                "high"
+                              ]
+                            },
+                            {
+                              "type": "string",
+                              "enum": [
+                                "limited"
+                              ]
+                            },
+                            {
+                              "type": "string",
+                              "enum": [
+                                "minimal"
+                              ]
+                            }
+                          ]
+                        },
+                        "end_user_ref": {
+                          "maxLength": 200,
+                          "type": "string"
+                        },
+                        "error": {},
+                        "appeal": {},
+                        "metadata": {
+                          "type": "object",
+                          "additionalProperties": {}
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "receipts"
+                  ],
+                  "properties": {
+                    "receipts": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "id",
+                          "seq",
+                          "record_hash",
+                          "prev_hash",
+                          "recorded_at"
+                        ],
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "seq": {
+                            "type": "number"
+                          },
+                          "record_hash": {
+                            "type": "string"
+                          },
+                          "prev_hash": {
+                            "type": "string"
+                          },
+                          "recorded_at": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/ai-calls": {
+      "get": {
+        "tags": [
+          "ai-calls"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "format": "date-time",
+              "type": "string"
+            },
+            "in": "query",
+            "name": "from",
+            "required": false
+          },
+          {
+            "schema": {
+              "format": "date-time",
+              "type": "string"
+            },
+            "in": "query",
+            "name": "to",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "model_id",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "system_purpose",
+            "required": false
+          },
+          {
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "prohibited"
+                  ]
+                },
+                {
+                  "type": "string",
+                  "enum": [
+                    "high"
+                  ]
+                },
+                {
+                  "type": "string",
+                  "enum": [
+                    "limited"
+                  ]
+                },
+                {
+                  "type": "string",
+                  "enum": [
+                    "minimal"
+                  ]
+                }
+              ]
+            },
+            "in": "query",
+            "name": "risk_tier",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "boolean"
+            },
+            "in": "query",
+            "name": "human_oversight",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "boolean"
+            },
+            "in": "query",
+            "name": "has_error",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "end_user_ref",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "number"
+            },
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "description": "seq of the last item from previous page"
+          },
+          {
+            "schema": {
+              "minimum": 1,
+              "maximum": 200,
+              "default": 50,
+              "type": "number"
+            },
+            "in": "query",
+            "name": "limit",
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "items",
+                    "next_cursor"
+                  ],
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": true,
+                        "type": "object",
+                        "required": [
+                          "id",
+                          "seq",
+                          "occurred_at",
+                          "recorded_at",
+                          "model_id",
+                          "model_version",
+                          "prompt_version",
+                          "system_purpose",
+                          "data_sources",
+                          "user_consent",
+                          "consent_ref",
+                          "human_oversight",
+                          "oversight_actor",
+                          "decision_output",
+                          "input_summary",
+                          "risk_tier",
+                          "end_user_ref",
+                          "error",
+                          "appeal",
+                          "metadata",
+                          "prev_hash",
+                          "record_hash"
+                        ],
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "seq": {
+                            "type": "number"
+                          },
+                          "occurred_at": {
+                            "type": "string"
+                          },
+                          "recorded_at": {
+                            "type": "string"
+                          },
+                          "model_id": {
+                            "type": "string"
+                          },
+                          "model_version": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "prompt_version": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "system_purpose": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "data_sources": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "user_consent": {
+                            "anyOf": [
+                              {
+                                "type": "boolean"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "consent_ref": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "human_oversight": {
+                            "type": "boolean"
+                          },
+                          "oversight_actor": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "decision_output": {},
+                          "input_summary": {},
+                          "risk_tier": {
+                            "anyOf": [
+                              {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "enum": [
+                                      "prohibited"
+                                    ]
+                                  },
+                                  {
+                                    "type": "string",
+                                    "enum": [
+                                      "high"
+                                    ]
+                                  },
+                                  {
+                                    "type": "string",
+                                    "enum": [
+                                      "limited"
+                                    ]
+                                  },
+                                  {
+                                    "type": "string",
+                                    "enum": [
+                                      "minimal"
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "end_user_ref": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "error": {},
+                          "appeal": {},
+                          "metadata": {},
+                          "prev_hash": {
+                            "type": "string"
+                          },
+                          "record_hash": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    },
+                    "next_cursor": {
+                      "anyOf": [
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/ai-calls/{id}": {
+      "get": {
+        "tags": [
+          "ai-calls"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "required": [
+                    "id",
+                    "seq",
+                    "occurred_at",
+                    "recorded_at",
+                    "model_id",
+                    "model_version",
+                    "prompt_version",
+                    "system_purpose",
+                    "data_sources",
+                    "user_consent",
+                    "consent_ref",
+                    "human_oversight",
+                    "oversight_actor",
+                    "decision_output",
+                    "input_summary",
+                    "risk_tier",
+                    "end_user_ref",
+                    "error",
+                    "appeal",
+                    "metadata",
+                    "prev_hash",
+                    "record_hash"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "seq": {
+                      "type": "number"
+                    },
+                    "occurred_at": {
+                      "type": "string"
+                    },
+                    "recorded_at": {
+                      "type": "string"
+                    },
+                    "model_id": {
+                      "type": "string"
+                    },
+                    "model_version": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "prompt_version": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "system_purpose": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "data_sources": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "user_consent": {
+                      "anyOf": [
+                        {
+                          "type": "boolean"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "consent_ref": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "human_oversight": {
+                      "type": "boolean"
+                    },
+                    "oversight_actor": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "decision_output": {},
+                    "input_summary": {},
+                    "risk_tier": {
+                      "anyOf": [
+                        {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "enum": [
+                                "prohibited"
+                              ]
+                            },
+                            {
+                              "type": "string",
+                              "enum": [
+                                "high"
+                              ]
+                            },
+                            {
+                              "type": "string",
+                              "enum": [
+                                "limited"
+                              ]
+                            },
+                            {
+                              "type": "string",
+                              "enum": [
+                                "minimal"
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "end_user_ref": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "error": {},
+                    "appeal": {},
+                    "metadata": {},
+                    "prev_hash": {
+                      "type": "string"
+                    },
+                    "record_hash": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/risk-classify": {
+      "post": {
+        "tags": [
+          "risk"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "system_name",
+                  "description"
+                ],
+                "properties": {
+                  "system_name": {
+                    "minLength": 1,
+                    "maxLength": 300,
+                    "type": "string"
+                  },
+                  "description": {
+                    "minLength": 1,
+                    "maxLength": 10000,
+                    "type": "string"
+                  },
+                  "questionnaire": {
+                    "type": "object",
+                    "properties": {
+                      "domain": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "employment"
+                            ]
+                          },
+                          {
+                            "type": "string",
+                            "enum": [
+                              "education"
+                            ]
+                          },
+                          {
+                            "type": "string",
+                            "enum": [
+                              "finance"
+                            ]
+                          },
+                          {
+                            "type": "string",
+                            "enum": [
+                              "insurance"
+                            ]
+                          },
+                          {
+                            "type": "string",
+                            "enum": [
+                              "healthcare"
+                            ]
+                          },
+                          {
+                            "type": "string",
+                            "enum": [
+                              "law_enforcement"
+                            ]
+                          },
+                          {
+                            "type": "string",
+                            "enum": [
+                              "migration"
+                            ]
+                          },
+                          {
+                            "type": "string",
+                            "enum": [
+                              "justice"
+                            ]
+                          },
+                          {
+                            "type": "string",
+                            "enum": [
+                              "critical_infrastructure"
+                            ]
+                          },
+                          {
+                            "type": "string",
+                            "enum": [
+                              "customer_service"
+                            ]
+                          },
+                          {
+                            "type": "string",
+                            "enum": [
+                              "marketing"
+                            ]
+                          },
+                          {
+                            "type": "string",
+                            "enum": [
+                              "other"
+                            ]
+                          }
+                        ]
+                      },
+                      "is_safety_component": {
+                        "type": "boolean"
+                      },
+                      "processes_biometrics": {
+                        "type": "boolean"
+                      },
+                      "realtime_remote_biometric_id_public": {
+                        "type": "boolean"
+                      },
+                      "emotion_recognition": {
+                        "type": "boolean"
+                      },
+                      "emotion_recognition_workplace_or_education": {
+                        "type": "boolean"
+                      },
+                      "social_scoring": {
+                        "type": "boolean"
+                      },
+                      "subliminal_or_manipulative": {
+                        "type": "boolean"
+                      },
+                      "exploits_vulnerable_groups": {
+                        "type": "boolean"
+                      },
+                      "untargeted_facial_scraping": {
+                        "type": "boolean"
+                      },
+                      "used_for_evaluation_of_persons": {
+                        "type": "boolean"
+                      },
+                      "affects_access_to_essential_services": {
+                        "type": "boolean"
+                      },
+                      "credit_scoring": {
+                        "type": "boolean"
+                      },
+                      "insurance_risk_pricing": {
+                        "type": "boolean"
+                      },
+                      "education_admission_or_scoring": {
+                        "type": "boolean"
+                      },
+                      "recruitment_or_screening": {
+                        "type": "boolean"
+                      },
+                      "employment_decisions": {
+                        "type": "boolean"
+                      },
+                      "interacts_with_humans": {
+                        "type": "boolean"
+                      },
+                      "generates_synthetic_content": {
+                        "type": "boolean"
+                      }
+                    }
+                  },
+                  "persist": {
+                    "default": true,
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "assessment_id",
+                    "tier",
+                    "confidence",
+                    "matched_rules",
+                    "obligations",
+                    "disclaimer"
+                  ],
+                  "properties": {
+                    "assessment_id": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "tier": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "prohibited"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "high"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "limited"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "minimal"
+                          ]
+                        }
+                      ]
+                    },
+                    "confidence": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "high"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "indicative"
+                          ]
+                        }
+                      ]
+                    },
+                    "matched_rules": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "rule_id",
+                          "tier",
+                          "article",
+                          "label",
+                          "triggered_by"
+                        ],
+                        "properties": {
+                          "rule_id": {
+                            "type": "string"
+                          },
+                          "tier": {
+                            "type": "string"
+                          },
+                          "article": {
+                            "type": "string"
+                          },
+                          "annex_ref": {
+                            "type": "string"
+                          },
+                          "label": {
+                            "type": "string"
+                          },
+                          "triggered_by": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    },
+                    "obligations": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "id",
+                          "article",
+                          "title",
+                          "description"
+                        ],
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "article": {
+                            "type": "string"
+                          },
+                          "title": {
+                            "type": "string"
+                          },
+                          "description": {
+                            "type": "string"
+                          },
+                          "how_tenet_helps": {
+                            "type": "string"
+                          },
+                          "deadline_note": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    },
+                    "disclaimer": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/risk-assessments": {
+      "get": {
+        "tags": [
+          "risk"
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "id",
+                      "created_at",
+                      "system_name",
+                      "tier",
+                      "confidence",
+                      "matched_rules",
+                      "obligations"
+                    ],
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "created_at": {
+                        "type": "string"
+                      },
+                      "system_name": {
+                        "type": "string"
+                      },
+                      "tier": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "prohibited"
+                            ]
+                          },
+                          {
+                            "type": "string",
+                            "enum": [
+                              "high"
+                            ]
+                          },
+                          {
+                            "type": "string",
+                            "enum": [
+                              "limited"
+                            ]
+                          },
+                          {
+                            "type": "string",
+                            "enum": [
+                              "minimal"
+                            ]
+                          }
+                        ]
+                      },
+                      "confidence": {
+                        "type": "string"
+                      },
+                      "matched_rules": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "required": [
+                            "rule_id",
+                            "tier",
+                            "article",
+                            "label",
+                            "triggered_by"
+                          ],
+                          "properties": {
+                            "rule_id": {
+                              "type": "string"
+                            },
+                            "tier": {
+                              "type": "string"
+                            },
+                            "article": {
+                              "type": "string"
+                            },
+                            "annex_ref": {
+                              "type": "string"
+                            },
+                            "label": {
+                              "type": "string"
+                            },
+                            "triggered_by": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      },
+                      "obligations": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "required": [
+                            "id",
+                            "article",
+                            "title",
+                            "description"
+                          ],
+                          "properties": {
+                            "id": {
+                              "type": "string"
+                            },
+                            "article": {
+                              "type": "string"
+                            },
+                            "title": {
+                              "type": "string"
+                            },
+                            "description": {
+                              "type": "string"
+                            },
+                            "how_tenet_helps": {
+                              "type": "string"
+                            },
+                            "deadline_note": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/incident-report": {
+      "post": {
+        "tags": [
+          "incidents"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "occurred_at",
+                  "severity",
+                  "title",
+                  "description"
+                ],
+                "properties": {
+                  "occurred_at": {
+                    "format": "date-time",
+                    "type": "string"
+                  },
+                  "severity": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "enum": [
+                          "serious"
+                        ]
+                      },
+                      {
+                        "type": "string",
+                        "enum": [
+                          "major"
+                        ]
+                      },
+                      {
+                        "type": "string",
+                        "enum": [
+                          "minor"
+                        ]
+                      }
+                    ]
+                  },
+                  "title": {
+                    "minLength": 1,
+                    "maxLength": 300,
+                    "type": "string"
+                  },
+                  "description": {
+                    "minLength": 1,
+                    "maxLength": 20000,
+                    "type": "string"
+                  },
+                  "affected_users": {
+                    "minimum": 0,
+                    "type": "integer"
+                  },
+                  "related_log_ids": {
+                    "maxItems": 500,
+                    "type": "array",
+                    "items": {
+                      "format": "uuid",
+                      "type": "string"
+                    }
+                  },
+                  "remediation": {
+                    "type": "object",
+                    "properties": {
+                      "actions": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "status": {
+                        "type": "string"
+                      },
+                      "completed_at": {
+                        "format": "date-time",
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "is_article_73": {
+                    "type": "boolean"
+                  },
+                  "reported_to_authority": {
+                    "type": "boolean"
+                  },
+                  "authority_ref": {
+                    "maxLength": 500,
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "required": [
+                    "id",
+                    "created_at",
+                    "occurred_at",
+                    "severity",
+                    "is_article_73",
+                    "title",
+                    "description",
+                    "affected_users",
+                    "related_log_ids",
+                    "remediation",
+                    "reported_to_authority",
+                    "authority_ref",
+                    "status"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "created_at": {
+                      "type": "string"
+                    },
+                    "occurred_at": {
+                      "type": "string"
+                    },
+                    "severity": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "serious"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "major"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "minor"
+                          ]
+                        }
+                      ]
+                    },
+                    "is_article_73": {
+                      "type": "boolean"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "affected_users": {
+                      "anyOf": [
+                        {
+                          "type": "integer"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "related_log_ids": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "remediation": {},
+                    "reported_to_authority": {
+                      "type": "boolean"
+                    },
+                    "authority_ref": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "status": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "open"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "investigating"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "remediated"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "closed"
+                          ]
+                        }
+                      ]
+                    },
+                    "article_73_note": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/incidents": {
+      "get": {
+        "tags": [
+          "incidents"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "serious"
+                  ]
+                },
+                {
+                  "type": "string",
+                  "enum": [
+                    "major"
+                  ]
+                },
+                {
+                  "type": "string",
+                  "enum": [
+                    "minor"
+                  ]
+                }
+              ]
+            },
+            "in": "query",
+            "name": "severity",
+            "required": false
+          },
+          {
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "open"
+                  ]
+                },
+                {
+                  "type": "string",
+                  "enum": [
+                    "investigating"
+                  ]
+                },
+                {
+                  "type": "string",
+                  "enum": [
+                    "remediated"
+                  ]
+                },
+                {
+                  "type": "string",
+                  "enum": [
+                    "closed"
+                  ]
+                }
+              ]
+            },
+            "in": "query",
+            "name": "status",
+            "required": false
+          },
+          {
+            "schema": {
+              "format": "date-time",
+              "type": "string"
+            },
+            "in": "query",
+            "name": "from",
+            "required": false
+          },
+          {
+            "schema": {
+              "format": "date-time",
+              "type": "string"
+            },
+            "in": "query",
+            "name": "to",
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "additionalProperties": true,
+                    "type": "object",
+                    "required": [
+                      "id",
+                      "created_at",
+                      "occurred_at",
+                      "severity",
+                      "is_article_73",
+                      "title",
+                      "description",
+                      "affected_users",
+                      "related_log_ids",
+                      "remediation",
+                      "reported_to_authority",
+                      "authority_ref",
+                      "status"
+                    ],
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "created_at": {
+                        "type": "string"
+                      },
+                      "occurred_at": {
+                        "type": "string"
+                      },
+                      "severity": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "serious"
+                            ]
+                          },
+                          {
+                            "type": "string",
+                            "enum": [
+                              "major"
+                            ]
+                          },
+                          {
+                            "type": "string",
+                            "enum": [
+                              "minor"
+                            ]
+                          }
+                        ]
+                      },
+                      "is_article_73": {
+                        "type": "boolean"
+                      },
+                      "title": {
+                        "type": "string"
+                      },
+                      "description": {
+                        "type": "string"
+                      },
+                      "affected_users": {
+                        "anyOf": [
+                          {
+                            "type": "integer"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "related_log_ids": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "remediation": {},
+                      "reported_to_authority": {
+                        "type": "boolean"
+                      },
+                      "authority_ref": {
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "status": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "open"
+                            ]
+                          },
+                          {
+                            "type": "string",
+                            "enum": [
+                              "investigating"
+                            ]
+                          },
+                          {
+                            "type": "string",
+                            "enum": [
+                              "remediated"
+                            ]
+                          },
+                          {
+                            "type": "string",
+                            "enum": [
+                              "closed"
+                            ]
+                          }
+                        ]
+                      },
+                      "article_73_note": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/incidents/{id}": {
+      "patch": {
+        "tags": [
+          "incidents"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "enum": [
+                          "open"
+                        ]
+                      },
+                      {
+                        "type": "string",
+                        "enum": [
+                          "investigating"
+                        ]
+                      },
+                      {
+                        "type": "string",
+                        "enum": [
+                          "remediated"
+                        ]
+                      },
+                      {
+                        "type": "string",
+                        "enum": [
+                          "closed"
+                        ]
+                      }
+                    ]
+                  },
+                  "remediation": {
+                    "type": "object",
+                    "properties": {
+                      "actions": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "status": {
+                        "type": "string"
+                      },
+                      "completed_at": {
+                        "format": "date-time",
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "reported_to_authority": {
+                    "type": "boolean"
+                  },
+                  "authority_ref": {
+                    "maxLength": 500,
+                    "type": "string"
+                  },
+                  "affected_users": {
+                    "minimum": 0,
+                    "type": "integer"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "required": [
+                    "id",
+                    "created_at",
+                    "occurred_at",
+                    "severity",
+                    "is_article_73",
+                    "title",
+                    "description",
+                    "affected_users",
+                    "related_log_ids",
+                    "remediation",
+                    "reported_to_authority",
+                    "authority_ref",
+                    "status"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "created_at": {
+                      "type": "string"
+                    },
+                    "occurred_at": {
+                      "type": "string"
+                    },
+                    "severity": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "serious"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "major"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "minor"
+                          ]
+                        }
+                      ]
+                    },
+                    "is_article_73": {
+                      "type": "boolean"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "affected_users": {
+                      "anyOf": [
+                        {
+                          "type": "integer"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "related_log_ids": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "remediation": {},
+                    "reported_to_authority": {
+                      "type": "boolean"
+                    },
+                    "authority_ref": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "status": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "open"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "investigating"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "remediated"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "closed"
+                          ]
+                        }
+                      ]
+                    },
+                    "article_73_note": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/export-audit-pack": {
+      "get": {
+        "tags": [
+          "audit-pack"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "format": "date-time",
+              "type": "string"
+            },
+            "in": "query",
+            "name": "from",
+            "required": true
+          },
+          {
+            "schema": {
+              "format": "date-time",
+              "type": "string"
+            },
+            "in": "query",
+            "name": "to",
+            "required": true
+          },
+          {
+            "schema": {
+              "default": true,
+              "type": "boolean"
+            },
+            "in": "query",
+            "name": "include_incidents",
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/v1/verify-chain": {
+      "get": {
+        "tags": [
+          "verification"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "minimum": 1,
+              "type": "number"
+            },
+            "in": "query",
+            "name": "from_seq",
+            "required": false
+          },
+          {
+            "schema": {
+              "minimum": 1,
+              "type": "number"
+            },
+            "in": "query",
+            "name": "to_seq",
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "valid",
+                    "checked_records",
+                    "from_seq",
+                    "to_seq",
+                    "head_seq",
+                    "head_hash"
+                  ],
+                  "properties": {
+                    "valid": {
+                      "type": "boolean"
+                    },
+                    "checked_records": {
+                      "type": "number"
+                    },
+                    "first_invalid_seq": {
+                      "type": "number"
+                    },
+                    "reason": {
+                      "type": "string"
+                    },
+                    "from_seq": {
+                      "type": "number"
+                    },
+                    "to_seq": {
+                      "type": "number"
+                    },
+                    "head_seq": {
+                      "type": "number"
+                    },
+                    "head_hash": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "security": [
+    {
+      "apiKey": []
+    }
+  ],
+  "tags": [
+    {
+      "name": "ai-calls",
+      "description": "Article 12 record-keeping"
+    },
+    {
+      "name": "risk",
+      "description": "Article 6 / Annex III risk classification"
+    },
+    {
+      "name": "incidents",
+      "description": "Article 73 incident reporting"
+    },
+    {
+      "name": "audit-pack",
+      "description": "Auditor-ready evidence export"
+    },
+    {
+      "name": "verification",
+      "description": "Hash-chain integrity verification"
+    },
+    {
+      "name": "admin",
+      "description": "Tenant and API key management"
+    },
+    {
+      "name": "system",
+      "description": "Health and docs"
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: tenet
+          POSTGRES_PASSWORD: tenet
+          POSTGRES_DB: tenet_audit
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U tenet -d tenet_audit"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgres://tenet:tenet@localhost:5432/tenet_audit
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run test:unit
+      - run: npm run migrate:up
+      - run: npm run test:integration
+      - run: npm run build
